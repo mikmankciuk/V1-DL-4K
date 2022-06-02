@@ -5,7 +5,7 @@ from time import sleep
 
 giveup = 0
 
-sleep(15)
+#sleep(5)
 
 if not giveup:
     try:
@@ -18,6 +18,7 @@ if not giveup:
         print ('Initialized Joystick : %s' % j.get_name())
         
     except:
+        giveup = 1
         print("Cant find a controller")
 #
         
@@ -226,59 +227,89 @@ speed2 = 0
 speed3 = 0
 speed4 = 0
 
-controlMode = 1
+speedC = 0
+speedB = 0
+speedD = 0
+speedR = 0
+
+controlMode = 0
 
 while not giveup:
 
     # Check for any queued events and then process each one
     events = pygame.event.get()
     for event in events:
-        print ('%s' % event)
-        print ('%s' % event.type)
+        #print ('%s' % event)
+        #print ('%s' % event.type)
                     
     # Check if one of the joysticks has moved  L jest po skosie !
         if event.type == pygame.JOYAXISMOTION:
-            if event.axis == 0: # L prawo lewo
-                if abs(event.value) > threshold and event.value > 0:
-                    if speed2 < 100:
-                        speed2 += 10
-                if abs(event.value) > threshold and event.value < 0:
-                    if speed2 > -100:
-                        speed2 -= 10
-                updateEngine(2,1,1,speed + speed2)
-            if event.axis == 1: # L gora dol
-                if abs(event.value) > threshold and event.value > 0:
-                    if speed1 < 100:
-                        speed1 += 10
-                if abs(event.value) > threshold and event.value < 0:
-                    if speed1 > -100:
-                        speed1 -= 10
-                updateEngine(1,1,1,speed + speed1)
-#             if event.axis == 2: # L3 odchylenie
-#                 sleep(delayAxis)
-            if event.axis == 3: # R prawo lewo
-                if abs(event.value) > threshold and event.value > 0:
-                    if speed3 < 100:
-                        speed3 += 10
-                if abs(event.value) > threshold and event.value < 0:
-                    if speed3 > -100:
-                        speed3 -= 10
-                updateEngine(3,1,1,speed + speed3)
-            if event.axis == 4: # R gora dol
-                if abs(event.value) > threshold and event.value > 0:
-                    if speed4 < 100:
-                        speed4 += 10
-                if abs(event.value) > threshold and event.value < 0:
-                    if speed4 > -100:
-                        speed4 -= 10
-                updateEngine(4,1,1,speed + speed4)
-#             if event.axis == 5: # R3 odchylenie
-#                 sleep(delayAxis)
-            
+            if controlMode == 1:
+                if event.axis == 0: # L prawo lewo
+                    if abs(event.value) > threshold: # odatnie do tylu
+                        speed1 = int(100*event.value)
+                    else:
+                        speed1 = 0
+                if event.axis == 1: # L gora dol
+                    if abs(event.value) > threshold: # odatnie do tylu
+                        speed2 = int(100*event.value)
+                    else:
+                        speed2 = 0
+    #             if event.axis == 2: # L3 odchylenie
+                if event.axis == 3: # R prawo lewo
+                    if abs(event.value) > threshold: # odatnie do tylu
+                        speed3 = int(100*event.value)
+                    else:
+                        speed3 = 0
+                if event.axis == 4: # R gora dol
+                    if abs(event.value) > threshold: # odatnie do tylu
+                        speed4 = int(100*event.value)
+                    else:
+                        speed4 = 0
+    #           if event.axis == 5: # R3 odchylenie
+
+                updateEngine(1,1,0,speed + speed1)
+                updateEngine(2,1,0,speed + speed2)
+                updateEngine(3,1,0,speed + speed3)
+                updateEngine(4,1,0,speed + speed4)
+    
+            else:
+                if event.axis == 0: # L prawo + lewo -
+                    if abs(event.value) > threshold:
+                        speedD = int(50*event.value)
+                    else:
+                        speedD = 0
+                if event.axis == 1: # L gora dol
+                    if abs(event.value) > threshold: # odatnie do tylu
+                        speedC = int(-60*event.value)
+                    else:
+                        speedC = 0
+                if event.axis == 2: # L3 odchylenie
+                    if event.value > threshold:
+                        speedB = int(-20*event.value)
+                    else:
+                        speedB = 0
+                if event.axis == 3: # R prawo lewo
+                    if abs(event.value) > threshold:
+                        speedR = int(50*event.value)
+                    else:
+                        speedR = 0
+                #if event.axis == 4: # R gora dol
+                if event.axis == 5: # R3 odchylenie
+                    if event.value > threshold:
+                        speedB = int(20*event.value)
+                    else:
+                        speedB = 0
+                
+                updateEngine(1,1,0,speedC+speedB+speedD+speedR)
+                updateEngine(2,1,0,speedC+speedB-speedD+speedR)
+                updateEngine(3,1,0,speedC+speedB+speedD-speedR)
+                updateEngine(4,1,0,speedC+speedB-speedD-speedR)
+                        
         # eventy naciskanie przycisku
         if event.type == pygame.JOYBUTTONDOWN: # czy wcisnieto przycisk
             if event.button == 0: # cross
-                controlMode = 1
+                updateEngines(0)
             if event.button == 1: # circle
                 speed = 0
                 speed1 = 0
@@ -287,22 +318,23 @@ while not giveup:
                 speed4 = 0
                 updateEngines(speed)
             if event.button == 2: # triangle
-                updateEngines(0)
+                controlMode = 1 - controlMode
+                #print ('%s' % controlMode)
             if event.button == 3: # square
                 updateEngine(1,0,0,speed + speed1)
                 updateEngine(2,0,0,speed + speed2)
                 updateEngine(3,0,0,speed + speed3)
                 updateEngine(4,0,0,speed + speed4)
             if event.button == 4: # L1
-                updateEngine(1,0,1,speed + speed1)
-                updateEngine(2,0,1,speed + speed2)
+                updateEngine(1,1,0,-speed - speed1)
+                updateEngine(2,1,0,-speed - speed2)
                 updateEngine(3,1,0,speed + speed3)
                 updateEngine(4,1,0,speed + speed4)
             if event.button == 5: # R1
                 updateEngine(1,1,0,speed + speed1)
                 updateEngine(2,1,0,speed + speed2)
-                updateEngine(3,0,1,speed + speed3)
-                updateEngine(4,0,1,speed + speed4)
+                updateEngine(3,1,0,-speed - speed3)
+                updateEngine(4,1,0,-speed - speed4)
             if event.button == 6: # L2 # L2 i R2 dzialaja tez jako osie
                 if speed > 0:
                     speed -= 10
@@ -327,20 +359,20 @@ while not giveup:
                 updateEngine(3,1,0,speed + speed3)
                 updateEngine(4,1,0,speed + speed4)
             if event.button == 14: # \/
-                updateEngine(1,0,1,speed + speed1)
-                updateEngine(2,0,1,speed + speed2)
-                updateEngine(3,0,1,speed + speed3)
-                updateEngine(4,0,1,speed + speed4)
+                updateEngine(1,1,0,-speed - speed1)
+                updateEngine(2,1,0,-speed - speed2)
+                updateEngine(3,1,0,-speed - speed3)
+                updateEngine(4,1,0,-speed - speed4)
             if event.button == 15: # <
-                updateEngine(1,0,1,speed + speed1)
+                updateEngine(1,1,0,-speed - speed1)
                 updateEngine(2,1,0,speed + speed2)
-                updateEngine(3,0,1,speed + speed3)
+                updateEngine(3,1,0,-speed - speed3)
                 updateEngine(4,1,0,speed + speed4)
             if event.button == 16: # >
                 updateEngine(1,1,0,speed + speed1)
-                updateEngine(2,0,1,speed + speed2)
+                updateEngine(2,1,0,-speed - speed2)
                 updateEngine(3,1,0,speed + speed3)
-                updateEngine(4,0,1,speed + speed4)
+                updateEngine(4,1,0,-speed - speed4)
 
         # eventy puszczanie przycisku
         if event.type == pygame.JOYBUTTONUP: # czy puszczono przycisk
