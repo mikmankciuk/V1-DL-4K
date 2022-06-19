@@ -238,7 +238,7 @@ while not giveup:
         #print ('%s' % event)
         #print ('%s' % event.type)
                     
-    # sprawdz ruchy drazkow  L jest po skosie !
+    # sprawdz ruchy drazkow
         if event.type == pygame.JOYAXISMOTION:
             if controlMode == 1:
                 if event.axis == 0: # L prawo lewo
