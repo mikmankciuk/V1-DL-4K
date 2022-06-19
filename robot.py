@@ -9,9 +9,9 @@ giveup = 0
 
 if not giveup:
     try:
-        # Initialise the pygame library
+        
         pygame.init()
-        # Connect to the first JoyStick
+        
         j = pygame.joystick.Joystick(0)
         j.init()
 
@@ -20,7 +20,6 @@ if not giveup:
     except:
         giveup = 1
         print("Cant find a controller")
-#
         
 GPIO.setmode(GPIO.BOARD) # BOARD - piny jak na plytce | BCM - piny jak na GPIOx
 GPIO.setwarnings(False)
@@ -42,9 +41,6 @@ GPIO.setup(29, GPIO.OUT)
 GPIO.setup(35, GPIO.OUT) #pwm4
 GPIO.setup(37, GPIO.OUT)
 GPIO.setup(40, GPIO.OUT)
-
-#jak toglowac
-# GPIO.output(18, not GPIO.input(18))
 
 pi_pwm1 = GPIO.PWM(12, 1000)
 pi_pwm2 = GPIO.PWM(32, 1000)
@@ -236,13 +232,13 @@ controlMode = 0
 
 while not giveup:
 
-    # Check for any queued events and then process each one
+    # sprawdz czy wystapily eventy, jezeli tak to wykonaj je po kolei
     events = pygame.event.get()
     for event in events:
         #print ('%s' % event)
         #print ('%s' % event.type)
                     
-    # Check if one of the joysticks has moved  L jest po skosie !
+    # sprawdz ruchy drazkow  L jest po skosie !
         if event.type == pygame.JOYAXISMOTION:
             if controlMode == 1:
                 if event.axis == 0: # L prawo lewo
